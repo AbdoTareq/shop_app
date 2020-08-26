@@ -46,6 +46,9 @@ class ProductsProvider with ChangeNotifier {
   // == UnmodifiableListView<Product> get products => UnmodifiableListView(_products);
   UnmodifiableListView<Product> get products => UnmodifiableListView(_products);
 
+  Product findProductById(String id) =>
+      _products.firstWhere((element) => element.id == id);
+
   addProduct(Product product) {
     _products.add(product);
     notifyListeners();
