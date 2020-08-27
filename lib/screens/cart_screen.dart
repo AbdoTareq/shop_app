@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/providers/cart_provider.dart';
 import 'package:shop_app/providers/order_provider.dart';
+import 'package:shop_app/screens/order_screen.dart';
 import 'package:shop_app/widgets/cart_item_widget.dart';
 
 class CartScreen extends StatelessWidget {
@@ -44,9 +45,10 @@ class CartScreen extends StatelessWidget {
                     child: Text('ORDER NOW'),
                     onPressed: () {
                       Provider.of<OrderProvider>(context, listen: false)
-                          .addProduct(
-                              cart.items.values.toList(), cart.cartSize);
+                          .addOrder(
+                              cart.items.values.toList(), cart.orderTotal);
                       cart.clearCart();
+                      Navigator.of(context).pushNamed(OrderScreen.routeName);
                     },
                   ),
                 ],

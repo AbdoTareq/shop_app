@@ -13,7 +13,7 @@ class OrderProvider with ChangeNotifier {
   // == UnmodifiableListView<Product> get ProductProviders => UnmodifiableListView(_ProductProviders);
   UnmodifiableListView<OrderItem> get orders => UnmodifiableListView(_orders);
 
-  addProduct(List<CartItem> cartProducts, int total) {
+  addOrder(List<CartItem> cartProducts, double total) {
     _orders.insert(
         0,
         OrderItem(
