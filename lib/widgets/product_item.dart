@@ -35,6 +35,7 @@ class ProductItem extends StatelessWidget {
             ),
           ),
           trailing: IconButton(
+            highlightColor: Theme.of(context).accentColor,
             icon: Icon(
               Icons.shopping_cart,
               color: Theme.of(context).accentColor,
