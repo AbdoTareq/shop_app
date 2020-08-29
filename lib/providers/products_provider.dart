@@ -54,7 +54,14 @@ class ProductsProvider with ChangeNotifier {
       _products.where((element) => element.isFavourite).toList();
 
   addProduct(ProductProvider product) {
-    _products.add(product);
+    // we create new product as received one has null id
+    final newProduct = ProductProvider(
+        title: product.title,
+        imageUrl: product.imageUrl,
+        description: product.description,
+        price: product.price,
+        id: DateTime.now().toString());
+    _products.insert(0, newProduct);
     notifyListeners();
   }
 }
