@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shop_app/providers/product_provider.dart';
 
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/EditProductScreen';
@@ -16,6 +17,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _descriptionFocus = FocusNode();
   final _imageUrlFocus = FocusNode();
   final _imageUrlEditingController = TextEditingController();
+  final _form = GlobalKey<FormState>();
+  ProductProvider _existingProduct = ProductProvider(
+      id: null, price: null, title: '', description: '', imageUrl: '');
 
   @override
   void initState() {
@@ -29,6 +33,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
     if (!_imageUrlFocus.hasFocus) {
       setState(() {});
     }
+  }
+
+  _saveForm() {
+    _form.currentState.save();
+    print(_existingProduct);
   }
 
   @override
@@ -48,10 +57,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Product'),
+        actions: [
+          IconButton(
+            onPressed: _saveForm,
+            icon: Icon(Icons.save),
+          ),
+        ],
       ),
       body: Container(
         padding: const EdgeInsets.all(16),
         child: Form(
+          key: _form,
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -63,6 +79,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   onFieldSubmitted: (value) {
                     //step 2. these fields for go to nest field in form
                     FocusScope.of(context).requestFocus(_priceFocus);
+                    _existingProduct = ProductProvider(
+                        id: _existingProduct.id,
+                        price: _existingProduct.price,
+                        title: value,
+                        description: _existingProduct.description,
+                        imageUrl: _existingProduct.imageUrl);
                   },
                 ),
                 TextFormField(
@@ -73,13 +95,28 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   keyboardType: TextInputType.number,
                   // step 3. these fields for go to nest field in form
                   focusNode: _priceFocus,
+                  onFieldSubmitted: (value) {
+                    FocusScope.of(context).requestFocus(_descriptionFocus);
+                    _existingProduct = ProductProvider(
+                        id: _existingProduct.id,
+                        price: double.parse(value),
+                        title: _existingProduct.title,
+                        description: _existingProduct.description,
+                        imageUrl: _existingProduct.imageUrl);
+                  },
                 ),
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Description',
                   ),
-                  onFieldSubmitted: (value) {
-                    FocusScope.of(context).requestFocus(_descriptionFocus);
+                  onSaved: (value) {
+                    FocusScope.of(context).requestFocus(_imageUrlFocus);
+                    _existingProduct = ProductProvider(
+                        id: _existingProduct.id,
+                        price: _existingProduct.price,
+                        title: _existingProduct.title,
+                        description: value,
+                        imageUrl: _existingProduct.imageUrl);
                   },
                   maxLines: 3,
                   keyboardType: TextInputType.multiline,
@@ -116,6 +153,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         // step 3. these fields for go to nest field in form
                         focusNode: _imageUrlFocus,
                         controller: _imageUrlEditingController,
+                        onFieldSubmitted: (value) {
+                          _existingProduct = ProductProvider(
+                              id: _existingProduct.id,
+                              price: _existingProduct.price,
+                              title: _existingProduct.title,
+                              description: _existingProduct.description,
+                              imageUrl: value);
+                          _saveForm();
+                        },
                       ),
                     ),
                   ],
