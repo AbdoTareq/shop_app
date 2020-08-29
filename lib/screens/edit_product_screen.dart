@@ -25,17 +25,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void initState() {
     super.initState();
     _imageUrlFocus.addListener(() {
-      _updateFocus();
+      _updateImageUrl();
     });
   }
 
-  _updateFocus() {
+  _updateImageUrl() {
     if (!_imageUrlFocus.hasFocus) {
+      if ((!_imageUrlEditingController.text.startsWith('http') &&
+              !_imageUrlEditingController.text.startsWith('https')) ||
+          (!_imageUrlEditingController.text.endsWith('.jpg') &&
+              !_imageUrlEditingController.text.endsWith('.jpeg') &&
+              !_imageUrlEditingController.text.endsWith('.png'))) {
+        return;
+      }
       setState(() {});
     }
   }
 
   _saveForm() {
+    if (!_form.currentState.validate()) {
+      return;
+    }
     _form.currentState.save();
     print(_existingProduct);
   }
@@ -46,7 +56,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _priceFocus.dispose();
     _descriptionFocus.dispose();
     // remember to remove listener fist before dispose(destroy) object
-    _imageUrlFocus.removeListener(_updateFocus);
+    _imageUrlFocus.removeListener(_updateImageUrl);
     _imageUrlFocus.dispose();
     _imageUrlEditingController.dispose();
     super.dispose();
@@ -76,6 +86,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     labelText: 'Title',
                   ),
                   textInputAction: TextInputAction.next,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter product title';
+                    }
+                    // null here mean it's a valid input
+                    return null;
+                  },
                   onFieldSubmitted: (value) {
                     //step 2. these fields for go to nest field in form
                     FocusScope.of(context).requestFocus(_priceFocus);
@@ -95,6 +112,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   keyboardType: TextInputType.number,
                   // step 3. these fields for go to nest field in form
                   focusNode: _priceFocus,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter a product price';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Please enter a valid price';
+                    }
+                    if (double.parse(value) <= 0) {
+                      return 'Please enter a price > 0';
+                    }
+                    // null here mean it's a valid input
+                    return null;
+                  },
                   onFieldSubmitted: (value) {
                     FocusScope.of(context).requestFocus(_descriptionFocus);
                     _existingProduct = ProductProvider(
@@ -109,6 +139,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   decoration: InputDecoration(
                     labelText: 'Description',
                   ),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter product description';
+                    }
+                    if (value.length < 10) {
+                      return 'Please enter more than 10 characters ';
+                    }
+                    // null here mean it's a valid input
+                    return null;
+                  },
                   onSaved: (value) {
                     FocusScope.of(context).requestFocus(_imageUrlFocus);
                     _existingProduct = ProductProvider(
@@ -153,6 +193,22 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         // step 3. these fields for go to nest field in form
                         focusNode: _imageUrlFocus,
                         controller: _imageUrlEditingController,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter an image url';
+                          }
+                          if (!value.startsWith('http') ||
+                              !value.startsWith('https')) {
+                            return 'Please enter a valid image url';
+                          }
+                          if (!value.endsWith('.jpg') &&
+                              !value.endsWith('.jpeg') &&
+                              !value.endsWith('.png')) {
+                            return 'Please enter a valid image url';
+                          }
+                          // null here mean it's a valid input
+                          return null;
+                        },
                         onFieldSubmitted: (value) {
                           _existingProduct = ProductProvider(
                               id: _existingProduct.id,
