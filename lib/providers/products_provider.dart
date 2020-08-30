@@ -73,4 +73,9 @@ class ProductsProvider with ChangeNotifier {
       print('dart mess: not found');
     notifyListeners();
   }
+
+  deleteProduct(String productId) {
+    _products.removeWhere((element) => element.id == productId);
+    notifyListeners();
+  }
 }
