@@ -1,4 +1,6 @@
 import 'dart:collection';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 
@@ -53,16 +55,31 @@ class ProductsProvider with ChangeNotifier {
   List<ProductProvider> get favouritesList =>
       _products.where((element) => element.isFavourite).toList();
 
-  addProduct(ProductProvider product) {
-    // we create new product as received one has null id
-    final newProduct = ProductProvider(
+  Future<void> addProduct(ProductProvider product) {
+    const url = 'https://flutter-shop-app-3f55f.firebaseio.com/products.json';
+    return http
+        .post(url,
+            body: json.encode({
+              'title': product.title,
+              'price': product.price,
+              'description': product.description,
+              'imageUrl': product.imageUrl,
+              'isFavourite': product.isFavourite,
+            }))
+        .then((response) {
+      print('dart mess: ${json.decode(response.body)}');
+      // we create new product as received one has null id
+      final newProduct = ProductProvider(
         title: product.title,
         imageUrl: product.imageUrl,
         description: product.description,
         price: product.price,
-        id: DateTime.now().toString());
-    _products.insert(0, newProduct);
-    notifyListeners();
+        // id is stored inside response map
+        id: json.decode(response.body)['name'],
+      );
+      _products.insert(0, newProduct);
+      notifyListeners();
+    });
   }
 
   updateProduct(String productId, ProductProvider updatedProduct) {
