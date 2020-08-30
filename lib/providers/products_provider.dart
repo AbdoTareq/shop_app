@@ -64,4 +64,13 @@ class ProductsProvider with ChangeNotifier {
     _products.insert(0, newProduct);
     notifyListeners();
   }
+
+  updateProduct(String productId, ProductProvider updatedProduct) {
+    int index = _products.indexWhere((element) => element.id == productId);
+    if (index >= 0) {
+      _products[index] = updatedProduct;
+    } else
+      print('dart mess: not found');
+    notifyListeners();
+  }
 }

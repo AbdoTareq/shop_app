@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/providers/product_provider.dart';
@@ -20,8 +19,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlFocus = FocusNode();
   final _imageUrlEditingController = TextEditingController();
   final _form = GlobalKey<FormState>();
-  ProductProvider _existingProduct = ProductProvider(
+  ProductProvider _editedProduct = ProductProvider(
       id: null, price: null, title: '', description: '', imageUrl: '');
+  var _isInit = false;
+
+  var _initValues = {
+    'title': '',
+    'price': '',
+    'description': '',
+    'imageUrl': '',
+  };
 
   @override
   void initState() {
@@ -29,6 +36,25 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _imageUrlFocus.addListener(() {
       _updateImageUrl();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (!_isInit) {
+      final productId = ModalRoute.of(context).settings.arguments as String;
+      if (productId != null) {
+        _editedProduct = Provider.of<ProductsProvider>(context, listen: false)
+            .findProductById(productId);
+        _initValues = {
+          'title': _editedProduct.title,
+          'price': _editedProduct.price.toString(),
+          'description': _editedProduct.description,
+        };
+        _imageUrlEditingController.text = _editedProduct.imageUrl;
+      }
+    }
+    _isInit = true;
+    super.didChangeDependencies();
   }
 
   _updateImageUrl() {
@@ -49,9 +75,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
     _form.currentState.save();
-    print(_existingProduct);
-    Provider.of<ProductsProvider>(context, listen: false)
-        .addProduct(_existingProduct);
+    print(_editedProduct);
+    if (_editedProduct.id != null) {
+      Provider.of<ProductsProvider>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    } else
+      Provider.of<ProductsProvider>(context, listen: false)
+          .addProduct(_editedProduct);
   }
 
   @override
@@ -86,6 +116,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             child: Column(
               children: [
                 TextFormField(
+                  initialValue: _initValues['title'],
                   decoration: InputDecoration(
                     labelText: 'Title',
                   ),
@@ -100,15 +131,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   onFieldSubmitted: (value) {
                     //step 2. these fields for go to nest field in form
                     FocusScope.of(context).requestFocus(_priceFocus);
-                    _existingProduct = ProductProvider(
-                        id: _existingProduct.id,
-                        price: _existingProduct.price,
+                    _editedProduct = ProductProvider(
+                        id: _editedProduct.id,
+                        price: _editedProduct.price,
                         title: value,
-                        description: _existingProduct.description,
-                        imageUrl: _existingProduct.imageUrl);
+                        description: _editedProduct.description,
+                        imageUrl: _editedProduct.imageUrl,
+                        isFavourite: _editedProduct.isFavourite);
                   },
                 ),
                 TextFormField(
+                  initialValue: _initValues['price'],
                   decoration: InputDecoration(
                     labelText: 'Price',
                   ),
@@ -131,15 +164,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   },
                   onFieldSubmitted: (value) {
                     FocusScope.of(context).requestFocus(_descriptionFocus);
-                    _existingProduct = ProductProvider(
-                        id: _existingProduct.id,
+                    _editedProduct = ProductProvider(
+                        id: _editedProduct.id,
                         price: double.parse(value),
-                        title: _existingProduct.title,
-                        description: _existingProduct.description,
-                        imageUrl: _existingProduct.imageUrl);
+                        title: _editedProduct.title,
+                        description: _editedProduct.description,
+                        imageUrl: _editedProduct.imageUrl,
+                        isFavourite: _editedProduct.isFavourite);
                   },
                 ),
                 TextFormField(
+                  initialValue: _initValues['description'],
                   decoration: InputDecoration(
                     labelText: 'Description',
                   ),
@@ -155,12 +190,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   },
                   onSaved: (value) {
                     FocusScope.of(context).requestFocus(_imageUrlFocus);
-                    _existingProduct = ProductProvider(
-                        id: _existingProduct.id,
-                        price: _existingProduct.price,
-                        title: _existingProduct.title,
+                    _editedProduct = ProductProvider(
+                        id: _editedProduct.id,
+                        price: _editedProduct.price,
+                        title: _editedProduct.title,
                         description: value,
-                        imageUrl: _existingProduct.imageUrl);
+                        isFavourite: _editedProduct.isFavourite,
+                        imageUrl: _editedProduct.imageUrl);
                   },
                   maxLines: 3,
                   keyboardType: TextInputType.multiline,
@@ -214,11 +250,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           return null;
                         },
                         onFieldSubmitted: (value) {
-                          _existingProduct = ProductProvider(
-                              id: _existingProduct.id,
-                              price: _existingProduct.price,
-                              title: _existingProduct.title,
-                              description: _existingProduct.description,
+                          _editedProduct = ProductProvider(
+                              id: _editedProduct.id,
+                              price: _editedProduct.price,
+                              title: _editedProduct.title,
+                              description: _editedProduct.description,
+                              isFavourite: _editedProduct.isFavourite,
                               imageUrl: value);
                           _saveForm();
                         },
