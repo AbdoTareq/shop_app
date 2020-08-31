@@ -55,18 +55,17 @@ class ProductsProvider with ChangeNotifier {
   List<ProductProvider> get favouritesList =>
       _products.where((element) => element.isFavourite).toList();
 
-  Future<void> addProduct(ProductProvider product) {
-    const url = 'https://flutter-shop-app-3f55f.firebaseio.com/products.json';
-    return http
-        .post(url,
-            body: json.encode({
-              'title': product.title,
-              'price': product.price,
-              'description': product.description,
-              'imageUrl': product.imageUrl,
-              'isFavourite': product.isFavourite,
-            }))
-        .then((response) {
+  Future<void> addProduct(ProductProvider product) async {
+    const url = 'https://flutter-shop-app-3f55f.firebaseio.com/products';
+    try {
+      final response = await http.post(url,
+          body: json.encode({
+            'title': product.title,
+            'price': product.price,
+            'description': product.description,
+            'imageUrl': product.imageUrl,
+            'isFavourite': product.isFavourite,
+          }));
       print('dart mess: ${json.decode(response.body)}');
       // we create new product as received one has null id
       final newProduct = ProductProvider(
@@ -79,10 +78,10 @@ class ProductsProvider with ChangeNotifier {
       );
       _products.insert(0, newProduct);
       notifyListeners();
-    }).catchError((onError) {
-      print('dart mess: $onError');
-      throw onError;
-    });
+    } catch (e) {
+      print(e);
+      throw e;
+    }
   }
 
   updateProduct(String productId, ProductProvider updatedProduct) {

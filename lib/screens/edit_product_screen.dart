@@ -71,7 +71,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  _saveForm() {
+  _saveForm() async {
     if (!_form.currentState.validate()) {
       return;
     }
@@ -80,37 +80,38 @@ class _EditProductScreenState extends State<EditProductScreen> {
     });
     _form.currentState.save();
     print(_editedProduct);
-    if (_editedProduct.id != null) {
-      Provider.of<ProductsProvider>(context, listen: false)
-          .updateProduct(_editedProduct.id, _editedProduct);
-      Navigator.of(context).pop();
-    } else
-      Provider.of<ProductsProvider>(context, listen: false)
-          .addProduct(_editedProduct)
-          .catchError((onError) {
-        // we should return showDialog() as it returns a future to make then_block
-        // wait until user close the dialog if we not return showDialog then_block
-        // will not wait until user interact with dialog
-        return showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-                  title: Text('An error occurred'),
-                  content: Text(onError.toString()),
-                  actions: [
-                    FlatButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                      },
-                      child: Text('Ok'),
-                    )
-                  ],
-                )).then((_) {
-          setState(() {
-            _isLoading = false;
-          });
-          Navigator.of(context).pop();
-        });
+    try {
+      if (_editedProduct.id != null) {
+        Provider.of<ProductsProvider>(context, listen: false)
+            .updateProduct(_editedProduct.id, _editedProduct);
+        Navigator.of(context).pop();
+      } else
+        await Provider.of<ProductsProvider>(context, listen: false)
+            .addProduct(_editedProduct);
+    } catch (e) {
+      // we should return showDialog() as it returns a future to make then_block
+      // wait until user close the dialog if we not return showDialog then_block
+      // will not wait until user interact with dialog
+      await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                title: Text('An error occurred'),
+                content: Text(e.toString()),
+                actions: [
+                  FlatButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                    child: Text('Ok'),
+                  )
+                ],
+              ));
+    } finally {
+      setState(() {
+        _isLoading = false;
       });
+      Navigator.of(context).pop();
+    }
   }
 
   @override
