@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 
 import 'product_provider.dart';
 
-const url = 'https://flutter-shop-app-3f55f.firebaseio.com/products.json';
-
 class ProductsProvider with ChangeNotifier {
   List<ProductProvider> _products = [
 //    ProductProvider(
@@ -58,6 +56,7 @@ class ProductsProvider with ChangeNotifier {
       _products.where((element) => element.isFavourite).toList();
 
   Future<void> fetchAndSetProducts() async {
+    const url = 'https://flutter-shop-app-3f55f.firebaseio.com/products.json';
     try {
       final response = await http.get(url);
       print('dart mess: ${response.body}');
@@ -84,6 +83,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProduct(ProductProvider product) async {
+    const url = 'https://flutter-shop-app-3f55f.firebaseio.com/products.json';
     try {
       final response = await http.post(url,
           body: json.encode({
@@ -111,9 +111,20 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  updateProduct(String productId, ProductProvider updatedProduct) {
+  Future<void> updateProduct(
+      String productId, ProductProvider updatedProduct) async {
     int index = _products.indexWhere((element) => element.id == productId);
     if (index >= 0) {
+      final url =
+          'https://flutter-shop-app-3f55f.firebaseio.com/products/$productId.json';
+      await http.patch(url,
+          body: jsonEncode({
+            'title': updatedProduct.title,
+            'price': updatedProduct.price,
+            'description': updatedProduct.description,
+            'imageUrl': updatedProduct.imageUrl,
+            'isFavourite': updatedProduct.isFavourite,
+          }));
       _products[index] = updatedProduct;
     } else
       print('dart mess: not found');
