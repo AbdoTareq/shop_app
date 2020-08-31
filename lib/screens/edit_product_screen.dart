@@ -87,8 +87,29 @@ class _EditProductScreenState extends State<EditProductScreen> {
     } else
       Provider.of<ProductsProvider>(context, listen: false)
           .addProduct(_editedProduct)
-          .then((value) {
-        Navigator.of(context).pop();
+          .catchError((onError) {
+        // we should return showDialog() as it returns a future to make then_block
+        // wait until user close the dialog if we not return showDialog then_block
+        // will not wait until user interact with dialog
+        return showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+                  title: Text('An error occurred'),
+                  content: Text(onError.toString()),
+                  actions: [
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                      child: Text('Ok'),
+                    )
+                  ],
+                )).then((_) {
+          setState(() {
+            _isLoading = false;
+          });
+          Navigator.of(context).pop();
+        });
       });
   }
 

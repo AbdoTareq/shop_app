@@ -79,6 +79,9 @@ class ProductsProvider with ChangeNotifier {
       );
       _products.insert(0, newProduct);
       notifyListeners();
+    }).catchError((onError) {
+      print('dart mess: $onError');
+      throw onError;
     });
   }
 
