@@ -11,6 +11,7 @@ class UserProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffold = Scaffold.of(context);
     return Column(
       children: [
         ListTile(
@@ -30,9 +31,21 @@ class UserProductItem extends StatelessWidget {
                   icon: Icon(Icons.edit),
                 ),
                 IconButton(
-                  onPressed: () {
-                    Provider.of<ProductsProvider>(context, listen: false)
-                        .deleteProduct(product.id);
+                  onPressed: () async {
+                    try {
+                      await Provider.of<ProductsProvider>(context,
+                              listen: false)
+                          .deleteProduct(product.id);
+                    } catch (e) {
+                      // it made scaffold as a variable not to be built during catch(fail)
+                      scaffold.showSnackBar(SnackBar(
+                        content: Text(
+                          e.toString(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ));
+                      print(e);
+                    }
                   },
                   icon: Icon(
                     Icons.delete,

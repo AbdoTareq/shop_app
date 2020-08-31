@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:shop_app/models/http_exception.dart';
 
 import 'product_provider.dart';
 
@@ -131,8 +132,25 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  deleteProduct(String productId) {
-    _products.removeWhere((element) => element.id == productId);
+  Future<void> deleteProduct(String productId) async {
+    final url =
+        'https://flutter-shop-app-3f55f.firebaseio.com/products/$productId.json';
+    // these 2 lines for rollback if delete failed called (optimistic delete)
+    int existingProductIndex =
+        _products.indexWhere((element) => element.id == productId);
+    ProductProvider existingProduct = _products[existingProductIndex];
+
+    _products.removeAt(existingProductIndex);
     notifyListeners();
+
+    final response = await http.delete(url);
+    // handling exception can't be with try catch (delete fail)
+    if (response.statusCode >= 400) {
+      // rollback
+      _products.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+      throw HttpException('Deleting failed!');
+    }
+    existingProduct = null;
   }
 }
