@@ -94,7 +94,6 @@ class ProductsProvider with ChangeNotifier {
             'imageUrl': product.imageUrl,
             'isFavourite': product.isFavourite,
           }));
-      print('dart mess: ${json.decode(response.body)}');
       // we create new product as received one has null id
       final newProduct = ProductProvider(
         title: product.title,

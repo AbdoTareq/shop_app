@@ -1,4 +1,6 @@
 import 'dart:collection';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:shop_app/models/cart_item.dart';
@@ -13,13 +15,30 @@ class OrderProvider with ChangeNotifier {
   // == UnmodifiableListView<Product> get ProductProviders => UnmodifiableListView(_ProductProviders);
   UnmodifiableListView<OrderItem> get orders => UnmodifiableListView(_orders);
 
-  addOrder(List<CartItem> cartProducts, double total) {
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    const url = 'https://flutter-shop-app-3f55f.firebaseio.com/orders.json';
+    final timeStamp = DateTime.now();
+
+    final response = await http.post(url,
+        body: json.encode({
+          'amount': total,
+          'dateTime': timeStamp.toIso8601String(),
+          'productsList': cartProducts
+              .map((cp) => {
+                    'id': cp.id,
+                    'title': cp.title,
+                    'price': cp.price,
+                    'quantity': cp.quantity,
+                  })
+              .toList(),
+        }));
+    print('dart mess: ${json.decode(response.body)}');
     _orders.insert(
         0,
         OrderItem(
-            id: DateTime.now().toString(),
+            id: json.decode(response.body)['name'],
             amount: total,
-            dateTime: DateTime.now(),
+            dateTime: timeStamp,
             productsList: cartProducts));
     notifyListeners();
   }

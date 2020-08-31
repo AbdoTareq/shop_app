@@ -40,17 +40,7 @@ class CartScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  FlatButton(
-                    textColor: Theme.of(context).primaryColor,
-                    child: Text('ORDER NOW'),
-                    onPressed: () {
-                      Provider.of<OrderProvider>(context, listen: false)
-                          .addOrder(
-                              cart.items.values.toList(), cart.orderTotal);
-                      cart.clearCart();
-                      Navigator.of(context).pushNamed(OrderScreen.routeName);
-                    },
-                  ),
+                  OrderButton(cart: cart),
                 ],
               ),
             ),
@@ -66,6 +56,50 @@ class CartScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key key,
+    @required this.cart,
+  }) : super(key: key);
+
+  final CartProvider cart;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      textColor: Theme.of(context).primaryColor,
+      child: _isLoading ? CircularProgressIndicator() : Text('ORDER NOW'),
+      // on pressed: null means disabled button
+      onPressed: (widget.cart.items.isEmpty || _isLoading)
+          ? null
+          : () async {
+              setState(() {
+                _isLoading = true;
+              });
+              try {
+                await Provider.of<OrderProvider>(context, listen: false)
+                    .addOrder(widget.cart.items.values.toList(),
+                        widget.cart.orderTotal);
+                widget.cart.clearCart();
+                setState(() {
+                  _isLoading = false;
+                });
+                Navigator.of(context).pushNamed(OrderScreen.routeName);
+              } catch (e) {
+                print('dart mess: $e');
+              }
+            },
     );
   }
 }
