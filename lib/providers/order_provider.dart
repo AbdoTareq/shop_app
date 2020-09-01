@@ -1,8 +1,8 @@
 import 'dart:collection';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shop_app/models/cart_item.dart';
 import 'package:shop_app/models/order_item.dart';
 
@@ -15,6 +15,37 @@ class OrderProvider with ChangeNotifier {
   // == UnmodifiableListView<Product> get ProductProviders => UnmodifiableListView(_ProductProviders);
   UnmodifiableListView<OrderItem> get orders => UnmodifiableListView(_orders);
 
+  // important method teach how to map a list map input to list<object>
+  Future<void> fetchAndSetOrders() async {
+    const url = 'https://flutter-shop-app-3f55f.firebaseio.com/orders.json';
+    final response = await http.get(url);
+    final responseBodyMap = json.decode(response.body) as Map<String, dynamic>;
+    if (responseBodyMap == null) {
+      return;
+    }
+    print('dart mess: $responseBodyMap');
+    List<OrderItem> loadedOrders = [];
+    responseBodyMap.forEach((key, order) {
+      loadedOrders.add(OrderItem(
+        id: key,
+        amount: order['amount'],
+        dateTime: DateTime.parse(order['dateTime']),
+        productsList: (order['productsList'] as List<dynamic>)
+            .map((cartItem) => CartItem(
+                  id: cartItem['id'],
+                  price: cartItem['price'],
+                  quantity: cartItem['quantity'],
+                  title: cartItem['title'],
+                ))
+            .toList(),
+      ));
+    });
+    print('dart mess: $loadedOrders');
+    _orders = loadedOrders.reversed.toList();
+    notifyListeners();
+  }
+
+  // important method teach how to map list<object> output to list map
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     const url = 'https://flutter-shop-app-3f55f.firebaseio.com/orders.json';
     final timeStamp = DateTime.now();

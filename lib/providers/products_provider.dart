@@ -63,6 +63,9 @@ class ProductsProvider with ChangeNotifier {
       print('dart mess: ${response.body}');
       final responseBodyMap =
           json.decode(response.body) as Map<String, dynamic>;
+      if (responseBodyMap == null) {
+        return;
+      }
       List<ProductProvider> loadedProducts = [];
       responseBodyMap.forEach((key, product) {
         loadedProducts.add(ProductProvider(
