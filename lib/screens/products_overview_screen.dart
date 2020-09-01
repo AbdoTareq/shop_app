@@ -11,51 +11,7 @@ import 'package:shop_app/widgets/products_grid.dart';
 
 enum Filters { Favourites, All }
 
-class ProductsOverviewScreen extends StatefulWidget {
-  @override
-  _ProductsOverviewScreenState createState() => _ProductsOverviewScreenState();
-}
-
-class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
-  var _showFavourites = false;
-  var _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // we must use listen false or it will not work also we can use didChangeDependencies()
-    // instead with a flag to make it run only once
-    // also we can use delayed fun with delay set to 0
-//    Future.delayed(Duration.zero).then((value) =>
-//        Provider.of<ProductsProvider>(context, listen: false)
-//            .fetchAndSetProducts());
-    setState(() {
-      _isLoading = true;
-    });
-    Provider.of<ProductsProvider>(context, listen: false)
-        .fetchAndSetProducts()
-        .catchError((e) {
-      return showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-                title: Text('An error occurred'),
-                content: Text(e.toString()),
-                actions: [
-                  FlatButton(
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                    },
-                    child: Text('Ok'),
-                  )
-                ],
-              ));
-    }).then((_) {
-      setState(() {
-        _isLoading = false;
-      });
-    });
-  }
-
+class ProductsOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,17 +20,13 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         actions: [
           PopupMenuButton(
             onSelected: (Filters selectedFilters) {
-              setState(() {
-                if (selectedFilters == Filters.Favourites) {
-                  setState(() {
-                    _showFavourites = true;
-                  });
-                } else {
-                  setState(() {
-                    _showFavourites = false;
-                  });
-                }
-              });
+              if (selectedFilters == Filters.Favourites) {
+                Provider.of<ProductsProvider>(context, listen: false)
+                    .toggleFavourites();
+              } else {
+                Provider.of<ProductsProvider>(context, listen: false)
+                    .toggleFavourites();
+              }
             },
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(
@@ -102,11 +54,22 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           )
         ],
       ),
-      body: _isLoading
-          ? Center(
+      body: FutureBuilder(
+        future: Provider.of<ProductsProvider>(context, listen: false)
+            .fetchAndSetProducts(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
               child: CircularProgressIndicator(),
-            )
-          : ProductsGrid(_showFavourites),
+            );
+          } else if (snapshot.error != null) {
+            return Center(
+              child: Text('Error occurred,\n ${snapshot.error}'),
+            );
+          } else
+            return ProductsGrid();
+        },
+      ),
       drawer: AppDrawer(),
     );
   }

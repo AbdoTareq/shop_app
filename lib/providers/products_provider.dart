@@ -50,11 +50,20 @@ class ProductsProvider with ChangeNotifier {
   UnmodifiableListView<ProductProvider> get products =>
       UnmodifiableListView(_products);
 
-  ProductProvider findProductById(String id) =>
-      _products.firstWhere((element) => element.id == id);
-
   List<ProductProvider> get favouritesList =>
       _products.where((element) => element.isFavourite).toList();
+
+  bool _showFavourites = false;
+
+  bool get showFavourites => _showFavourites;
+
+  toggleFavourites() {
+    _showFavourites = !_showFavourites;
+    notifyListeners();
+  }
+
+  ProductProvider findProductById(String id) =>
+      _products.firstWhere((element) => element.id == id);
 
   Future<void> fetchAndSetProducts() async {
     const url = 'https://flutter-shop-app-3f55f.firebaseio.com/products.json';
