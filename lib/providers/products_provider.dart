@@ -43,6 +43,10 @@ class ProductsProvider with ChangeNotifier {
 //    ),
   ];
 
+  final String token;
+
+  ProductsProvider(this.token, this._products);
+
   // immutable list that can't be modified from elsewhere to force me
   // to use addTask(String taskTitle) that has notifyListeners to work
   // List<ProductProvider> get items => [..._products];
@@ -66,7 +70,8 @@ class ProductsProvider with ChangeNotifier {
       _products.firstWhere((element) => element.id == id);
 
   Future<void> fetchAndSetProducts() async {
-    const url = 'https://flutter-shop-app-3f55f.firebaseio.com/products.json';
+    final url =
+        'https://flutter-shop-app-3f55f.firebaseio.com/products.json?auth=$token';
     try {
       final response = await http.get(url);
       print('dart mess: ${response.body}');
