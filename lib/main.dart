@@ -24,8 +24,13 @@ class MyApp extends StatelessWidget {
           // if u will instantiate a class like here ProductsProvider() for cashing reasons
           create: (BuildContext context) => AuthProvider(),
         ),
-        ChangeNotifierProvider(
-          create: (BuildContext context) => ProductsProvider(),
+        // this is used when provider depends on another like this case
+        // ProductsProvider & the rest of providers depend on AuthProvider
+        // (products need token to fetch data from backend)
+        ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
+          update: (BuildContext context, auth, ProductsProvider previous) =>
+              ProductsProvider(
+                  auth.token, previous == null ? [] : previous.products),
         ),
         ChangeNotifierProvider(
           create: (BuildContext context) => CartProvider(),
@@ -34,22 +39,24 @@ class MyApp extends StatelessWidget {
           create: (BuildContext context) => OrderProvider(),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'MyShop',
-        theme: ThemeData(
-          primarySwatch: Colors.purple,
-          accentColor: Colors.deepOrange,
-          fontFamily: 'Lato',
+      child: Consumer<AuthProvider>(
+        builder: (BuildContext context, auth, Widget child) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'MyShop',
+          theme: ThemeData(
+            primarySwatch: Colors.purple,
+            accentColor: Colors.deepOrange,
+            fontFamily: 'Lato',
+          ),
+          home: auth.isAuth() ? ProductsOverviewScreen() : AuthScreen(),
+          routes: {
+            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+            CartScreen.routeName: (ctx) => CartScreen(),
+            OrderScreen.routeName: (ctx) => OrderScreen(),
+            UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
+            EditProductScreen.routeName: (ctx) => EditProductScreen(),
+          },
         ),
-        home: AuthScreen(),
-        routes: {
-          ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-          CartScreen.routeName: (ctx) => CartScreen(),
-          OrderScreen.routeName: (ctx) => OrderScreen(),
-          UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
-          EditProductScreen.routeName: (ctx) => EditProductScreen(),
-        },
       ),
     );
   }
