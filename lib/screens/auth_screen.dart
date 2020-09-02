@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/models/http_exception.dart';
 import 'package:shop_app/providers/auth_provider.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -103,7 +104,7 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState.validate()) {
       // Invalid!
       return;
@@ -112,18 +113,43 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
-      // Log user in
-      Provider.of<AuthProvider>(context, listen: false)
-          .login(_authData['email'], _authData['password']);
-    } else {
-      // Sign user up
-      Provider.of<AuthProvider>(context, listen: false)
-          .signup(_authData['email'], _authData['password']);
+    try {
+      if (_authMode == AuthMode.Login) {
+        // Log user in
+        await Provider.of<AuthProvider>(context, listen: false)
+            .login(_authData['email'], _authData['password']);
+      } else {
+        // Sign user up
+        await Provider.of<AuthProvider>(context, listen: false)
+            .signup(_authData['email'], _authData['password']);
+      }
+    } on HttpException catch (error) {
+      _showErrorDialog(HttpException('').getErrorMessage(error));
+    } catch (e) {
+      print('dart mess: $e');
+      _showErrorDialog(
+          'Could not authenticate you. Please try again later.\n $e');
     }
     setState(() {
       _isLoading = false;
     });
+  }
+
+  _showErrorDialog(String mess) {
+    showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+              title: Text('An Error Occurred!'),
+              content: Text(mess),
+              actions: [
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Ok'),
+                )
+              ],
+            ));
   }
 
   void _switchAuthMode() {
