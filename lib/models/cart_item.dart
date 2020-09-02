@@ -12,4 +12,9 @@ class CartItem {
     @required this.price,
     @required this.quantity,
   });
+
+  @override
+  String toString() {
+    return '[id: ${id}, title: ${title}, price: ${price}, quantity: ${quantity}] ';
+  }
 }

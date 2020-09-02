@@ -19,9 +19,9 @@ class ProductProvider with ChangeNotifier {
       @required this.imageUrl,
       this.isFavourite = false});
 
-  toggleFavourite() async {
+  toggleFavourite(String token) async {
     final url =
-        'https://flutter-shop-app-3f55f.firebaseio.com/products/$id.json';
+        'https://flutter-shop-app-3f55f.firebaseio.com/products/$id.json?auth=$token';
     final oldStatus = isFavourite;
 
     isFavourite = !isFavourite;

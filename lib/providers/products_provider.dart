@@ -101,7 +101,8 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProduct(ProductProvider product) async {
-    const url = 'https://flutter-shop-app-3f55f.firebaseio.com/products.json';
+    final url =
+        'https://flutter-shop-app-3f55f.firebaseio.com/products.json?auth=$token';
     try {
       final response = await http.post(url,
           body: json.encode({
@@ -133,7 +134,7 @@ class ProductsProvider with ChangeNotifier {
     int index = _products.indexWhere((element) => element.id == productId);
     if (index >= 0) {
       final url =
-          'https://flutter-shop-app-3f55f.firebaseio.com/products/$productId.json';
+          'https://flutter-shop-app-3f55f.firebaseio.com/products/$productId.json?auth=$token';
       await http.patch(url,
           body: jsonEncode({
             'title': updatedProduct.title,
@@ -150,7 +151,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> deleteProduct(String productId) async {
     final url =
-        'https://flutter-shop-app-3f55f.firebaseio.com/products/$productId.json';
+        'https://flutter-shop-app-3f55f.firebaseio.com/products/$productId.json?auth=$token';
     // these 2 lines for rollback if delete failed called (optimistic delete)
     int existingProductIndex =
         _products.indexWhere((element) => element.id == productId);

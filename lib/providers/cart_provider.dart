@@ -12,9 +12,16 @@ class CartProvider with ChangeNotifier {
 
   double get orderTotal {
     var total = 0.0;
-    _items.forEach((key, cartItem) {
-      total += cartItem.price * cartItem.quantity;
-    });
+    try {
+      _items.forEach((key, cartItem) {
+        total += cartItem.price * cartItem.quantity;
+        print('dart mess: price ${cartItem.price}');
+        print('dart mess: quan ${cartItem.quantity}');
+      });
+    } catch (e) {
+      print('dart mess: ${_items}');
+      print(e);
+    }
     return total;
   }
 
