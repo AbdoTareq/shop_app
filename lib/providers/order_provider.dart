@@ -28,7 +28,7 @@ class OrderProvider with ChangeNotifier {
     if (responseBodyMap == null) {
       return;
     }
-    print('dart mess: $responseBodyMap');
+    // print('dart mess: $responseBodyMap');
     List<OrderItem> loadedOrders = [];
     responseBodyMap.forEach((key, order) {
       loadedOrders.add(OrderItem(
@@ -45,7 +45,7 @@ class OrderProvider with ChangeNotifier {
             .toList(),
       ));
     });
-    print('dart mess: $loadedOrders');
+    // print('dart mess: $loadedOrders');
     _orders = loadedOrders.reversed.toList();
     notifyListeners();
   }
@@ -69,7 +69,7 @@ class OrderProvider with ChangeNotifier {
                   })
               .toList(),
         }));
-    print('dart mess: ${json.decode(response.body)}');
+    // print('dart mess: ${json.decode(response.body)}');
     _orders.insert(
         0,
         OrderItem(

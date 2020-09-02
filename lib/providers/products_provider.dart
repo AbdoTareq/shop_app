@@ -44,8 +44,9 @@ class ProductsProvider with ChangeNotifier {
   ];
 
   final String token;
+  final String userId;
 
-  ProductsProvider(this.token, this._products);
+  ProductsProvider(this.token, this.userId, this._products);
 
   // immutable list that can't be modified from elsewhere to force me
   // to use addTask(String taskTitle) that has notifyListeners to work
@@ -70,28 +71,34 @@ class ProductsProvider with ChangeNotifier {
       _products.firstWhere((element) => element.id == id);
 
   Future<void> fetchAndSetProducts() async {
-    final url =
+    var url =
         'https://flutter-shop-app-3f55f.firebaseio.com/products.json?auth=$token';
     try {
       final response = await http.get(url);
-      print('dart mess: ${response.body}');
+      // print('dart mess: ${response.body}');
       final responseBodyMap =
           json.decode(response.body) as Map<String, dynamic>;
       if (responseBodyMap == null) {
         return;
       }
+      url =
+          'https://flutter-shop-app-3f55f.firebaseio.com/userFavorites/$userId.json?auth=$token';
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
+
       List<ProductProvider> loadedProducts = [];
-      responseBodyMap.forEach((key, product) {
+      responseBodyMap.forEach((prodId, product) {
         loadedProducts.add(ProductProvider(
-          id: key,
+          id: prodId,
           title: product['title'],
           price: product['price'],
           description: product['description'],
           imageUrl: product['imageUrl'],
-          isFavourite: product['isFavourite'],
+          isFavourite:
+              favoriteData == null ? false : favoriteData[prodId] ?? false,
         ));
       });
-      print('dart mess: $loadedProducts');
+      // print('dart mess: $loadedProducts');
       _products = loadedProducts;
       notifyListeners();
     } catch (e) {
@@ -110,7 +117,6 @@ class ProductsProvider with ChangeNotifier {
             'price': product.price,
             'description': product.description,
             'imageUrl': product.imageUrl,
-            'isFavourite': product.isFavourite,
           }));
       // we create new product as received one has null id
       final newProduct = ProductProvider(
@@ -141,7 +147,6 @@ class ProductsProvider with ChangeNotifier {
             'price': updatedProduct.price,
             'description': updatedProduct.description,
             'imageUrl': updatedProduct.imageUrl,
-            'isFavourite': updatedProduct.isFavourite,
           }));
       _products[index] = updatedProduct;
     } else

@@ -29,8 +29,8 @@ class MyApp extends StatelessWidget {
         // (products need token to fetch data from backend)
         ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
           update: (BuildContext context, auth, ProductsProvider previous) =>
-              ProductsProvider(
-                  auth.token, previous == null ? [] : previous.products),
+              ProductsProvider(auth.token, auth.userId,
+                  previous == null ? [] : previous.products),
         ),
         ChangeNotifierProvider(
           create: (BuildContext context) => CartProvider(),

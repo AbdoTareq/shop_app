@@ -21,6 +21,8 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  String get userId => _userId ?? 'no userId';
+
   Future<void> _authenticate(String mail, String pass, urlSegment) async {
     final url =
         'https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=AIzaSyAUb5ff9zKxzTV0FhOBN2Mn3IV6BKxqhxs';

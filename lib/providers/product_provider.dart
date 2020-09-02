@@ -19,19 +19,19 @@ class ProductProvider with ChangeNotifier {
       @required this.imageUrl,
       this.isFavourite = false});
 
-  toggleFavourite(String token) async {
+  Future<void> toggleFavourite(String token, String userId) async {
     final url =
-        'https://flutter-shop-app-3f55f.firebaseio.com/products/$id.json?auth=$token';
+        'https://flutter-shop-app-3f55f.firebaseio.com/userFavorites/$userId/$id.json?auth=$token';
     final oldStatus = isFavourite;
 
     isFavourite = !isFavourite;
     notifyListeners();
 
     try {
-      final response = await http.patch(url,
-          body: json.encode({
-            'isFavourite': isFavourite,
-          }));
+      final response = await http.put(url,
+          body: json.encode(
+            isFavourite,
+          ));
       if (response.statusCode >= 400) {
         isFavourite = oldStatus;
         notifyListeners();
@@ -39,7 +39,7 @@ class ProductProvider with ChangeNotifier {
     } catch (e) {
       isFavourite = oldStatus;
       notifyListeners();
-      print(e);
+      print('dart mess: $e');
     }
   }
 
