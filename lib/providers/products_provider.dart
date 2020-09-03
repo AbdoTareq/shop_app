@@ -70,9 +70,11 @@ class ProductsProvider with ChangeNotifier {
   ProductProvider findProductById(String id) =>
       _products.firstWhere((element) => element.id == id);
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final String filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
     var url =
-        'https://flutter-shop-app-3f55f.firebaseio.com/products.json?auth=$token';
+        'https://flutter-shop-app-3f55f.firebaseio.com/products.json?auth=$token&$filterString';
     try {
       final response = await http.get(url);
       // print('dart mess: ${response.body}');
@@ -117,6 +119,7 @@ class ProductsProvider with ChangeNotifier {
             'price': product.price,
             'description': product.description,
             'imageUrl': product.imageUrl,
+            'creatorId': userId,
           }));
       // we create new product as received one has null id
       final newProduct = ProductProvider(
