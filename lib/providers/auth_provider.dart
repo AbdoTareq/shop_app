@@ -56,4 +56,11 @@ class AuthProvider with ChangeNotifier {
   Future<void> login(String mail, String pass) async {
     return _authenticate(mail, pass, 'signInWithPassword');
   }
+
+  logout() {
+    _token = null;
+    _userId = null;
+    _expiryDate = null;
+    notifyListeners();
+  }
 }
