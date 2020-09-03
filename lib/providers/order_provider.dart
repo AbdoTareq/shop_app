@@ -10,8 +10,9 @@ class OrderProvider with ChangeNotifier {
   List<OrderItem> _orders = [];
 
   final String token;
+  final String userId;
 
-  OrderProvider(this.token, this._orders);
+  OrderProvider(this.token, this.userId, this._orders);
 
   // immutable list that can't be modified from elsewhere to force me
   // to use addTask(String taskTitle) that has notifyListeners to work
@@ -22,7 +23,7 @@ class OrderProvider with ChangeNotifier {
   // important method teach how to map a list map input to list<object>
   Future<void> fetchAndSetOrders() async {
     final url =
-        'https://flutter-shop-app-3f55f.firebaseio.com/orders.json?auth=$token';
+        'https://flutter-shop-app-3f55f.firebaseio.com/orders/$userId.json?auth=$token';
     final response = await http.get(url);
     final responseBodyMap = json.decode(response.body) as Map<String, dynamic>;
     if (responseBodyMap == null) {
@@ -53,7 +54,7 @@ class OrderProvider with ChangeNotifier {
   // important method teach how to map list<object> output to list map
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final url =
-        'https://flutter-shop-app-3f55f.firebaseio.com/orders.json?auth=$token';
+        'https://flutter-shop-app-3f55f.firebaseio.com/orders/$userId.json?auth=$token';
     final timeStamp = DateTime.now();
 
     final response = await http.post(url,

@@ -35,14 +35,19 @@ class OrderScreen extends StatelessWidget {
           } else {
             // we used consumer down here to stop infinite loop building
             return Consumer<OrderProvider>(
-              builder: (BuildContext context, ordersData, Widget child) {
-                return ListView.builder(
-                  itemCount: ordersData.orders.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return OrderItemWidget(ordersData.orders[index]);
-                  },
-                );
-              },
+              builder: (BuildContext context, ordersData, Widget child) =>
+                  ordersData.orders.isEmpty
+                      ? Center(
+                          child: Text(
+                          'No orders, Place an order!',
+                          style: TextStyle(fontSize: 24),
+                        ))
+                      : ListView.builder(
+                          itemCount: ordersData.orders.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return OrderItemWidget(ordersData.orders[index]);
+                          },
+                        ),
             );
           }
         },
