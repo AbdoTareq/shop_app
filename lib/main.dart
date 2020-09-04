@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
         // this is used when provider depends on another like this case
         // ProductsProvider & the rest of providers depend on AuthProvider
         // (products need token to fetch data from backend)
+        // ignore: missing_required_param
         ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
           update: (BuildContext context, auth, ProductsProvider previous) =>
               ProductsProvider(auth.token, auth.userId,
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (BuildContext context) => CartProvider(),
         ),
+        // ignore: missing_required_param
         ChangeNotifierProxyProvider<AuthProvider, OrderProvider>(
           update: (BuildContext context, auth, OrderProvider previousOrders) =>
               OrderProvider(auth.token, auth.userId,

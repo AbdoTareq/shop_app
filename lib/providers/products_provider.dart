@@ -104,7 +104,7 @@ class ProductsProvider with ChangeNotifier {
       _products = loadedProducts;
       notifyListeners();
     } catch (e) {
-      print('dart mess: ${e}');
+      print('dart mess: $e');
       throw e;
     }
   }

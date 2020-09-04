@@ -19,7 +19,7 @@ class CartProvider with ChangeNotifier {
         print('dart mess: quan ${cartItem.quantity}');
       });
     } catch (e) {
-      print('dart mess: ${_items}');
+      print('dart mess: $_items');
       print(e);
     }
     return total;

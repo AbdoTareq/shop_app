@@ -15,6 +15,6 @@ class CartItem {
 
   @override
   String toString() {
-    return '[id: ${id}, title: ${title}, price: ${price}, quantity: ${quantity}] ';
+    return '[id: $id, title: $title, price: $price, quantity: $quantity] ';
   }
 }
