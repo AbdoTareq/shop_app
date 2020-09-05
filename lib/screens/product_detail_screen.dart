@@ -19,7 +19,9 @@ class ProductDetailScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            Image.network(loadedProduct.imageUrl),
+            Hero(
+                tag: loadedProduct.id,
+                child: Image.network(loadedProduct.imageUrl)),
             SizedBox(
               height: 10,
             ),
